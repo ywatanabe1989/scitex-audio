@@ -42,12 +42,22 @@ def _get_model(device: str = "cpu", model_id: str = "YatharthS/LuxTTS"):
         return _cached_model
 
 
-def _get_encoded_prompt(model, ref_path: str, duration: float = 5.0):
+def _get_encoded_prompt(model, ref_path: str, duration: float = 5.0, rms: float = 0.01):
     """Get or create cached encoded prompt for a reference audio."""
     global _cached_prompt, _cached_ref_path
     with _lock:
         if _cached_prompt is None or _cached_ref_path != ref_path:
-            _cached_prompt = model.encode_prompt(ref_path, duration=duration)
+            # Suppress Whisper's hallucinated transcription log
+            import contextlib
+            import io
+
+            with (
+                contextlib.redirect_stdout(io.StringIO()),
+                contextlib.redirect_stderr(io.StringIO()),
+            ):
+                _cached_prompt = model.encode_prompt(
+                    ref_path, duration=duration, rms=rms
+                )
             _cached_ref_path = ref_path
         return _cached_prompt
 
@@ -74,7 +84,11 @@ class LuxTTS(BaseTTS):
         reference_audio: Optional[str] = None,
         num_steps: int = 4,
         speed: float = 2.0,
-        guidance_scale: float = 3.0,
+        rms: float = 0.01,
+        t_shift: float = 0.9,
+        return_smooth: bool = False,
+        ref_duration: float = 5.0,
+        trim_start: Optional[float] = None,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -83,7 +97,13 @@ class LuxTTS(BaseTTS):
         self._reference_audio = reference_audio
         self.num_steps = num_steps
         self.speed = speed
-        self.guidance_scale = guidance_scale
+        self.rms = rms
+        self.t_shift = t_shift
+        self.return_smooth = return_smooth
+        self.ref_duration = ref_duration
+        self._trim_start = trim_start or float(
+            os.environ.get("SCITEX_AUDIO_LUXTTS_TRIM_START", "0")
+        )
 
     @staticmethod
     def _detect_device() -> str:
@@ -172,7 +192,9 @@ class LuxTTS(BaseTTS):
             ref_path = self._create_default_reference()
 
         # Encode prompt (cached per reference audio)
-        encoded = _get_encoded_prompt(model, ref_path)
+        encoded = _get_encoded_prompt(
+            model, ref_path, duration=self.ref_duration, rms=self.rms
+        )
 
         # Generate speech
         speed = self.config.get("speed", self.speed)
@@ -180,8 +202,9 @@ class LuxTTS(BaseTTS):
             text,
             encoded,
             num_steps=self.num_steps,
-            guidance_scale=self.guidance_scale,
+            t_shift=self.t_shift,
             speed=speed,
+            return_smooth=self.return_smooth,
         )
 
         # Save as WAV (48kHz)
@@ -189,6 +212,12 @@ class LuxTTS(BaseTTS):
         wav = audio.cpu().numpy()
         if wav.ndim == 2:
             wav = wav[0]
+
+        # Trim hallucinated preamble from start (seconds)
+        if self._trim_start > 0:
+            trim_samples = int(self._trim_start * 48000)
+            if trim_samples < len(wav):
+                wav = wav[trim_samples:]
 
         # LuxTTS outputs WAV at 48kHz
         if out_path.suffix.lower() in (".mp3", ".ogg"):
