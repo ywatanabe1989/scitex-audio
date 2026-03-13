@@ -169,4 +169,38 @@ def list_tools(ctx, verbose, compact, as_json):
                     click.echo()
 
 
+@mcp.command()
+@click.option("--json", "as_json", is_flag=True, help="Output as JSON")
+def installation(as_json):
+    """
+    Show MCP server installation instructions for Claude Code
+
+    \b
+    Example:
+      scitex-audio mcp installation
+      scitex-audio mcp installation --json
+    """
+    import json as json_mod
+
+    config = {
+        "mcpServers": {
+            "scitex-audio": {
+                "command": "scitex-audio",
+                "args": ["mcp", "start"],
+            }
+        }
+    }
+    if as_json:
+        click.echo(json_mod.dumps({"success": True, "config": config}, indent=2))
+    else:
+        click.secho("MCP Server Installation", fg="cyan", bold=True)
+        click.echo()
+        click.echo("Add to your Claude Code settings (~/.claude/settings.json):")
+        click.echo()
+        click.echo(json_mod.dumps(config, indent=2))
+        click.echo()
+        click.echo("Or start manually:")
+        click.echo("  scitex-audio mcp start")
+
+
 # EOF
