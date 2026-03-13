@@ -79,6 +79,7 @@ packages = ["src/scitex_audio"]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 asyncio_mode = "auto"
+addopts = "--cov=scitex_audio --cov-report=term-missing --cov-report=html:htmlcov"
 
 [tool.ruff]
 line-length = 88

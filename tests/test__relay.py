@@ -6,7 +6,7 @@ import json
 import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from threading import Thread
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -210,9 +210,10 @@ class TestBrandingFunctions:
 class TestSpeakHandlers:
     """Tests for speak handlers."""
 
-    @pytest.mark.asyncio
-    async def test_speak_local_handler_success(self):
+    def test_speak_local_handler_success(self):
         """Test local speak handler with play=False (skips sink check)."""
+        import asyncio
+
         from scitex_audio._mcp.speak_handlers import speak_local_handler
 
         # Mock the speak function and ensure SCITEX_AUDIO_MODE is not "remote"
@@ -225,24 +226,26 @@ class TestSpeakHandlers:
         }
         with patch.dict(os.environ, {"SCITEX_AUDIO_MODE": "local"}, clear=False):
             with patch("scitex_audio.speak", return_value=mock_result):
-                result = await speak_local_handler("Test text", play=False)
+                result = asyncio.run(speak_local_handler("Test text", play=False))
                 assert result["success"] is True
                 assert result["text"] == "Test text"
                 assert result["played_on"] == "server"
 
-    @pytest.mark.asyncio
-    async def test_speak_local_handler_fails_when_mode_remote(self):
+    def test_speak_local_handler_fails_when_mode_remote(self):
         """Test local speak handler fails when SCITEX_AUDIO_MODE=remote."""
+        import asyncio
+
         from scitex_audio._mcp.speak_handlers import speak_local_handler
 
         with patch.dict(os.environ, {"SCITEX_AUDIO_MODE": "remote"}, clear=False):
-            result = await speak_local_handler("Test text")
+            result = asyncio.run(speak_local_handler("Test text"))
             assert result["success"] is False
             assert "SCITEX_AUDIO_MODE=remote" in result["error"]
 
-    @pytest.mark.asyncio
-    async def test_speak_local_handler_fails_when_sink_suspended(self):
+    def test_speak_local_handler_fails_when_sink_suspended(self):
         """Test local speak handler fails when sink is SUSPENDED."""
+        import asyncio
+
         from scitex_audio._mcp.speak_handlers import speak_local_handler
 
         mock_sink = {"available": False, "state": "SUSPENDED", "reason": "No output"}
@@ -251,18 +254,22 @@ class TestSpeakHandlers:
                 "scitex_audio._mcp.speak_handlers.check_audio_sink_state",
                 return_value=mock_sink,
             ):
-                result = await speak_local_handler("Test text", play=True)
+                result = asyncio.run(speak_local_handler("Test text", play=True))
                 assert result["success"] is False
                 assert "SUSPENDED" in result.get("sink_state", "")
 
-    @pytest.mark.asyncio
-    async def test_speak_relay_handler_no_url(self):
+    def test_speak_relay_handler_no_url(self):
         """Test relay handler when no URL configured."""
+        import asyncio
+
         from scitex_audio._mcp.speak_handlers import speak_relay_handler
 
         with patch("scitex_audio._branding.get_relay_url", return_value=None):
-            with patch("scitex_audio._branding.get_ssh_client_ip", return_value=None):
-                result = await speak_relay_handler("Test")
+            with patch(
+                "scitex_audio._branding.get_ssh_client_ip",
+                return_value=None,
+            ):
+                result = asyncio.run(speak_relay_handler("Test"))
                 assert result["success"] is False
                 assert "not configured" in result["error"]
                 assert "instructions" in result

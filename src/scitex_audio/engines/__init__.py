@@ -6,7 +6,7 @@
 """
 TTS Engine Backends
 
-Fallback order: pyttsx3 -> gtts -> elevenlabs
+Fallback order: elevenlabs -> luxtts -> gtts -> pyttsx3
 
 Engines:
     - SystemTTS (pyttsx3): Offline, free, uses system TTS

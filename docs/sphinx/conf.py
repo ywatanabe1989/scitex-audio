@@ -1,27 +1,22 @@
-"""Sphinx configuration for SciTeX Audio documentation.
-
-See https://www.sphinx-doc.org/en/master/usage/configuration.html
-"""
+# Configuration file for the Sphinx documentation builder.
 
 import os
 import sys
 
 sys.path.insert(0, os.path.abspath("../../src"))
 
-# -- Project information -----------------------------------------------------
-
 project = "scitex-audio"
 copyright = "2026, Yusuke Watanabe"
 author = "Yusuke Watanabe"
 
 try:
-    from importlib.metadata import version as _get_version
+    from scitex_audio import __version__
 
-    release = _get_version("scitex-audio")
-except Exception:
+    release = __version__
+    version = ".".join(release.split(".")[:2])
+except ImportError:
     release = "0.1.0"
-
-# -- General configuration ---------------------------------------------------
+    version = "0.1"
 
 extensions = [
     "sphinx.ext.autodoc",
@@ -30,19 +25,10 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.intersphinx",
     "sphinx.ext.coverage",
-    "sphinx_rtd_theme",
-    "myst_parser",
-    "sphinx_copybutton",
-    "sphinx_autodoc_typehints",
 ]
 
-autodoc_default_options = {
-    "members": True,
-    "member-order": "bysource",
-    "special-members": "__init__",
-    "undoc-members": True,
-    "exclude-members": "__weakref__",
-}
+templates_path = ["_templates"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 autodoc_mock_imports = [
     "pyttsx3",
@@ -51,47 +37,21 @@ autodoc_mock_imports = [
     "fastmcp",
     "pydub",
     "soundfile",
-    "scitex_dev",
+    "torch",
+    "torchaudio",
+    "transformers",
+    "luxtts",
 ]
 
 autosummary_generate = True
 
-napoleon_google_docstring = True
-napoleon_numpy_docstring = True
-napoleon_include_init_with_doc = True
-napoleon_include_private_with_doc = True
-napoleon_include_special_with_doc = True
-napoleon_use_admonition_for_examples = True
-napoleon_use_admonition_for_notes = True
-napoleon_use_admonition_for_references = True
-napoleon_use_param = True
-napoleon_use_rtype = True
-napoleon_attr_annotations = True
-
-templates_path = ["_templates"]
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "to_claude/**"]
-
-source_suffix = {
-    ".rst": "restructuredtext",
-    ".md": "markdown",
-}
-
-# -- Options for HTML output -------------------------------------------------
-
 html_theme = "sphinx_rtd_theme"
+html_static_path = ["_static"]
 
 html_theme_options = {
     "navigation_depth": 4,
-    "collapse_navigation": False,
-    "sticky_navigation": True,
-    "includehidden": True,
     "titles_only": False,
-    "prev_next_buttons_location": "bottom",
 }
-
-html_static_path = ["_static"]
-html_title = f"{project} v{release}"
-html_short_title = project
 
 html_context = {
     "display_github": True,
@@ -101,20 +61,16 @@ html_context = {
     "conf_py_path": "/docs/sphinx/",
 }
 
-myst_enable_extensions = [
-    "dollarmath",
-    "colon_fence",
-    "deflist",
-    "html_admonition",
-    "html_image",
-    "replacements",
-    "smartquotes",
-    "substitution",
-    "tasklist",
-]
-
-# -- Intersphinx configuration -----------------------------------------------
-
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
 }
+
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": True,
+    "show-inheritance": True,
+}
+
+napoleon_google_docstring = True
+napoleon_numpy_docstring = True
+napoleon_include_init_with_doc = True

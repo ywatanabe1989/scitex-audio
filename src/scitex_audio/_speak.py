@@ -7,7 +7,7 @@ routes audio to local or relay based on availability.
 
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import Optional
 
 __all__ = [
     "speak",
@@ -134,11 +134,11 @@ def speak(
         2. If local unavailable and relay configured, uses relay
         3. If both unavailable, returns error with clear message
 
-    Fallback order (local): elevenlabs -> gtts -> pyttsx3
+    Fallback order (local): elevenlabs -> luxtts -> gtts -> pyttsx3
 
     Args:
         text: Text to speak.
-        backend: TTS backend ('pyttsx3', 'gtts', 'elevenlabs').
+        backend: TTS backend ('elevenlabs', 'luxtts', 'gtts', 'pyttsx3').
                  Auto-selects with fallback if None.
         voice: Voice name, ID, or language code.
         play: Whether to play the audio.

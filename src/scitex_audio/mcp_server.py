@@ -91,7 +91,7 @@ if FASTMCP_AVAILABLE:
         agent_id: Optional[str] = None,
         signature: bool = False,
     ) -> str:
-        """Convert text to speech with fallback (pyttsx3 -> gtts -> elevenlabs).
+        """Convert text to speech with fallback (elevenlabs -> luxtts -> gtts -> pyttsx3).
 
         Smart routing: Automatically uses relay when local audio unavailable.
 
@@ -106,7 +106,7 @@ if FASTMCP_AVAILABLE:
 
         Args:
             text: Text to convert to speech
-            backend: TTS backend (pyttsx3, gtts, elevenlabs)
+            backend: TTS backend (elevenlabs, luxtts, gtts, pyttsx3)
             voice: Voice/language
             rate: Speech rate (pyttsx3 only)
             speed: Speed multiplier for gtts (default 1.5)

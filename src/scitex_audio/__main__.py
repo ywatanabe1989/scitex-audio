@@ -17,7 +17,7 @@ import argparse
 
 def main():
     parser = argparse.ArgumentParser(
-        description="SciTeX Audio - Text-to-Speech with fallback (pyttsx3 -> gtts -> elevenlabs)"
+        description="SciTeX Audio - Text-to-Speech with fallback (elevenlabs -> luxtts -> gtts -> pyttsx3)"
     )
 
     # Global options
@@ -35,7 +35,7 @@ def main():
     speak_parser.add_argument(
         "-b",
         "--backend",
-        choices=["pyttsx3", "gtts", "elevenlabs"],
+        choices=["elevenlabs", "luxtts", "gtts", "pyttsx3"],
         help="TTS backend (auto-selects with fallback if not specified)",
     )
     speak_parser.add_argument("-v", "--voice", help="Voice name or language code")
@@ -53,7 +53,7 @@ def main():
     voices_parser.add_argument(
         "-b",
         "--backend",
-        choices=["pyttsx3", "gtts", "elevenlabs"],
+        choices=["elevenlabs", "luxtts", "gtts", "pyttsx3"],
         help="Backend to list voices for",
     )
 

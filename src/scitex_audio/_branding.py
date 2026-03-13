@@ -142,7 +142,7 @@ def get_mcp_instructions() -> str:
     return """\
 scitex.audio - Text-to-Speech with Multiple Backends
 
-Backends (fallback order): elevenlabs -> gtts -> pyttsx3
+Backends (fallback order): elevenlabs -> luxtts -> gtts -> pyttsx3
 
 ## Quick Start
 ```python

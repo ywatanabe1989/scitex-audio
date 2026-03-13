@@ -5,7 +5,6 @@
 """Tests for scitex.audio._tts module (legacy ElevenLabs TTS)."""
 
 import os
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -116,7 +115,10 @@ class TestTTS:
 
     def test_api_key_from_environment(self):
         """Test API key from environment variable."""
-        with patch.dict(os.environ, {"ELEVENLABS_API_KEY": "env-api-key"}):
+        env = {"ELEVENLABS_API_KEY": "env-api-key"}
+        # Also clear the higher-priority env var so ELEVENLABS_API_KEY is used
+        with patch.dict(os.environ, env):
+            os.environ.pop("SCITEX_AUDIO_ELEVENLABS_API_KEY", None)
             from scitex_audio._tts import TTS
 
             tts = TTS()

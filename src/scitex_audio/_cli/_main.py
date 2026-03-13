@@ -28,10 +28,10 @@ def audio(ctx, help_recursive, as_json):
 
     \b
     Backends (fallback order):
-      pyttsx3    - System TTS (offline, free)
-      gtts       - Google TTS (free, needs internet)
-      luxtts     - LuxTTS (open-source, offline, voice-cloning)
       elevenlabs - ElevenLabs (paid, high quality)
+      luxtts     - LuxTTS (open-source, offline, voice-cloning)
+      gtts       - Google TTS (free, needs internet)
+      pyttsx3    - System TTS (offline, free)
 
     \b
     Examples:

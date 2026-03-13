@@ -22,7 +22,7 @@ Supported Backends
    :maxdepth: 2
    :caption: API Reference
 
-   api
+   api/scitex_audio
 
 Quick Example
 -------------

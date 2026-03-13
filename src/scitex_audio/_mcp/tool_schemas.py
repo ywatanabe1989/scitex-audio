@@ -18,7 +18,7 @@ def get_tool_schemas() -> list[types.Tool]:
         types.Tool(
             name="speak",
             description=(
-                "Convert text to speech with fallback (pyttsx3 -> gtts -> elevenlabs). "
+                "Convert text to speech with fallback (elevenlabs -> luxtts -> gtts -> pyttsx3). "
                 "Requests are queued for sequential playback to prevent audio overlap."
             ),
             inputSchema={
@@ -31,7 +31,7 @@ def get_tool_schemas() -> list[types.Tool]:
                     "backend": {
                         "type": "string",
                         "description": "TTS backend (auto-selects with fallback if not specified)",
-                        "enum": ["pyttsx3", "gtts", "elevenlabs"],
+                        "enum": ["elevenlabs", "luxtts", "gtts", "pyttsx3"],
                     },
                     "voice": {
                         "type": "string",
@@ -88,7 +88,7 @@ def get_tool_schemas() -> list[types.Tool]:
                     "backend": {
                         "type": "string",
                         "description": "TTS backend",
-                        "enum": ["gtts", "elevenlabs", "pyttsx3"],
+                        "enum": ["elevenlabs", "luxtts", "gtts", "pyttsx3"],
                         "default": "gtts",
                     },
                     "voice": {
@@ -122,7 +122,7 @@ def get_tool_schemas() -> list[types.Tool]:
                     "backend": {
                         "type": "string",
                         "description": "TTS backend",
-                        "enum": ["gtts", "elevenlabs", "pyttsx3"],
+                        "enum": ["elevenlabs", "luxtts", "gtts", "pyttsx3"],
                         "default": "gtts",
                     },
                 },

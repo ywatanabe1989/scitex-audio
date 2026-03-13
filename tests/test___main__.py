@@ -50,13 +50,12 @@ class TestMCPMode:
         mock_server_main = MagicMock()
 
         with patch.object(sys, "argv", ["scitex_audio", "--mcp"]):
-            with patch("scitex_audio.__main__.asyncio.run") as mock_run:
-                with patch("scitex_audio.mcp_server.main", mock_server_main):
-                    from scitex_audio.__main__ import main
+            with patch("scitex_audio.mcp_server.main", mock_server_main):
+                from scitex_audio.__main__ import main
 
-                    main()
+                main()
 
-                    mock_run.assert_called_once()
+                mock_server_main.assert_called_once()
 
 
 class TestSpeakCommand:

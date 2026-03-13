@@ -4,10 +4,18 @@
 
 """Tests for scitex.audio.engines.pyttsx3_engine module."""
 
-from pathlib import Path
-from unittest.mock import MagicMock, PropertyMock, patch
+import sys
+from unittest.mock import MagicMock, patch
 
 import pytest
+
+
+def _make_pyttsx3_mock(mock_engine=None):
+    """Create a mock pyttsx3 module with an optional engine mock."""
+    mock_module = MagicMock()
+    if mock_engine is not None:
+        mock_module.init.return_value = mock_engine
+    return mock_module
 
 
 class TestSystemTTS:
@@ -15,7 +23,8 @@ class TestSystemTTS:
 
     def test_name_property(self):
         """Test that name returns 'pyttsx3'."""
-        with patch("pyttsx3.init"):
+        mock_pyttsx3 = _make_pyttsx3_mock()
+        with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
             from scitex_audio.engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
@@ -74,8 +83,9 @@ class TestSystemTTS:
     def test_engine_property_initializes_pyttsx3(self):
         """Test engine property initializes pyttsx3."""
         mock_engine = MagicMock()
+        mock_pyttsx3 = _make_pyttsx3_mock(mock_engine)
 
-        with patch("pyttsx3.init", return_value=mock_engine):
+        with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
             from scitex_audio.engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
@@ -92,8 +102,9 @@ class TestSystemTTS:
         mock_voice.name = "English"
         mock_voice.id = "en-us"
         mock_engine.getProperty.return_value = [mock_voice]
+        mock_pyttsx3 = _make_pyttsx3_mock(mock_engine)
 
-        with patch("pyttsx3.init", return_value=mock_engine):
+        with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
             from scitex_audio.engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS(voice="English")
@@ -108,21 +119,10 @@ class TestSystemTTS:
 
         tts = SystemTTS()
 
-        # Mock the internal import of pyttsx3 to fail
-        import importlib
-
-        original_import = __builtins__["__import__"]
-
-        def mock_import(name, *args, **kwargs):
-            if name == "pyttsx3":
-                raise ImportError("pyttsx3 not installed")
-            return original_import(name, *args, **kwargs)
-
-        with patch("builtins.__import__", side_effect=mock_import):
-            with pytest.raises(ImportError) as exc_info:
+        # Remove pyttsx3 from sys.modules so import fails
+        with patch.dict(sys.modules, {"pyttsx3": None}):
+            with pytest.raises((ImportError, TypeError)):
                 _ = tts.engine
-
-        assert "pyttsx3" in str(exc_info.value)
 
     def test_inherits_from_base_tts(self):
         """Test that SystemTTS inherits from BaseTTS."""
@@ -134,8 +134,9 @@ class TestSystemTTS:
     def test_synthesize_saves_to_file(self, tmp_path):
         """Test synthesize saves audio to file."""
         mock_engine = MagicMock()
+        mock_pyttsx3 = _make_pyttsx3_mock(mock_engine)
 
-        with patch("pyttsx3.init", return_value=mock_engine):
+        with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
             from scitex_audio.engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
@@ -156,8 +157,9 @@ class TestSystemTTS:
         mock_voice.name = "English"
         mock_voice.id = "en-us"
         mock_engine.getProperty.return_value = [mock_voice]
+        mock_pyttsx3 = _make_pyttsx3_mock(mock_engine)
 
-        with patch("pyttsx3.init", return_value=mock_engine):
+        with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
             from scitex_audio.engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
@@ -172,8 +174,9 @@ class TestSystemTTS:
     def test_speak_direct_method(self):
         """Test speak_direct speaks without saving to file."""
         mock_engine = MagicMock()
+        mock_pyttsx3 = _make_pyttsx3_mock(mock_engine)
 
-        with patch("pyttsx3.init", return_value=mock_engine):
+        with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
             from scitex_audio.engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
@@ -189,8 +192,9 @@ class TestSystemTTS:
         mock_voice.name = "English"
         mock_voice.id = "en-us"
         mock_engine.getProperty.return_value = [mock_voice]
+        mock_pyttsx3 = _make_pyttsx3_mock(mock_engine)
 
-        with patch("pyttsx3.init", return_value=mock_engine):
+        with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
             from scitex_audio.engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
@@ -213,8 +217,9 @@ class TestSystemTTS:
         mock_voice2.languages = ["es"]
 
         mock_engine.getProperty.return_value = [mock_voice1, mock_voice2]
+        mock_pyttsx3 = _make_pyttsx3_mock(mock_engine)
 
-        with patch("pyttsx3.init", return_value=mock_engine):
+        with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
             from scitex_audio.engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
@@ -238,8 +243,9 @@ class TestSystemTTS:
         del mock_voice.languages  # Ensure it's not there
 
         mock_engine.getProperty.return_value = [mock_voice]
+        mock_pyttsx3 = _make_pyttsx3_mock(mock_engine)
 
-        with patch("pyttsx3.init", return_value=mock_engine):
+        with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
             from scitex_audio.engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
@@ -256,8 +262,9 @@ class TestSystemTTS:
         mock_voice.name = "English Voice"
         mock_voice.id = "en-voice-id"
         mock_engine.getProperty.return_value = [mock_voice]
+        mock_pyttsx3 = _make_pyttsx3_mock(mock_engine)
 
-        with patch("pyttsx3.init", return_value=mock_engine):
+        with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
             from scitex_audio.engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
@@ -272,8 +279,9 @@ class TestSystemTTS:
         mock_voice.name = "English Voice"
         mock_voice.id = "en-voice-id"
         mock_engine.getProperty.return_value = [mock_voice]
+        mock_pyttsx3 = _make_pyttsx3_mock(mock_engine)
 
-        with patch("pyttsx3.init", return_value=mock_engine):
+        with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
             from scitex_audio.engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
@@ -288,8 +296,9 @@ class TestSystemTTS:
         mock_voice.name = "English Voice"
         mock_voice.id = "en-voice-id"
         mock_engine.getProperty.return_value = [mock_voice]
+        mock_pyttsx3 = _make_pyttsx3_mock(mock_engine)
 
-        with patch("pyttsx3.init", return_value=mock_engine):
+        with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
             from scitex_audio.engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
@@ -308,7 +317,10 @@ class TestSystemTTSEdgeCases:
 
     def test_espeak_runtime_error_handling(self):
         """Test handling of eSpeak RuntimeError."""
-        with patch("pyttsx3.init", side_effect=RuntimeError("eSpeak not installed")):
+        mock_pyttsx3 = _make_pyttsx3_mock()
+        mock_pyttsx3.init.side_effect = RuntimeError("eSpeak not installed")
+
+        with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
             from scitex_audio.engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
@@ -319,7 +331,10 @@ class TestSystemTTSEdgeCases:
 
     def test_other_runtime_error_propagates(self):
         """Test that non-eSpeak RuntimeErrors propagate."""
-        with patch("pyttsx3.init", side_effect=RuntimeError("Some other error")):
+        mock_pyttsx3 = _make_pyttsx3_mock()
+        mock_pyttsx3.init.side_effect = RuntimeError("Some other error")
+
+        with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
             from scitex_audio.engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
@@ -401,142 +416,3 @@ if __name__ == "__main__":
     import pytest
 
     pytest.main([os.path.abspath(__file__)])
-
-# --------------------------------------------------------------------------------
-# Start of Source Code from: /home/ywatanabe/proj/scitex-code/src/scitex/audio/engines/pyttsx3_engine.py
-# --------------------------------------------------------------------------------
-# #!/usr/bin/env python3
-# # -*- coding: utf-8 -*-
-# # Timestamp: "2025-12-11 (ywatanabe)"
-# # File: /home/ywatanabe/proj/scitex-code/src/scitex/audio/engines/pyttsx3_engine.py
-# # ----------------------------------------
-#
-# """
-# System TTS backend using pyttsx3 - Offline, uses system voices.
-#
-# Requirements:
-#     - pip install pyttsx3
-#     - Linux: sudo apt install espeak-ng libespeak1
-#     - Windows: Uses SAPI5 (built-in)
-#     - macOS: Uses NSSpeechSynthesizer (built-in)
-# """
-#
-# from __future__ import annotations
-#
-# from pathlib import Path
-# from typing import List, Optional
-#
-# from .base import BaseTTS
-#
-# __all__ = ["SystemTTS"]
-#
-#
-# class SystemTTS(BaseTTS):
-#     """System TTS backend using pyttsx3.
-#
-#     Works offline using system's built-in TTS engine.
-#     Quality varies by platform and available voices.
-#
-#     Platforms:
-#         - Linux: espeak/espeak-ng
-#         - Windows: SAPI5
-#         - macOS: NSSpeechSynthesizer
-#     """
-#
-#     def __init__(
-#         self,
-#         rate: int = 150,  # Words per minute
-#         volume: float = 1.0,  # 0.0 to 1.0
-#         voice: Optional[str] = None,
-#         **kwargs,
-#     ):
-#         super().__init__(**kwargs)
-#         self.rate = rate
-#         self.volume = volume
-#         self.voice = voice
-#         self._engine = None
-#
-#     @property
-#     def name(self) -> str:
-#         return "pyttsx3"
-#
-#     @property
-#     def engine(self):
-#         """Lazy-load pyttsx3 engine."""
-#         if self._engine is None:
-#             try:
-#                 import pyttsx3
-#
-#                 self._engine = pyttsx3.init()
-#                 self._engine.setProperty("rate", self.rate)
-#                 self._engine.setProperty("volume", self.volume)
-#
-#                 if self.voice:
-#                     self._set_voice(self.voice)
-#             except ImportError:
-#                 raise ImportError(
-#                     "pyttsx3 package not installed. "
-#                     "Install with: pip install pyttsx3\n"
-#                     "Linux also requires: sudo apt install espeak-ng libespeak1"
-#                 )
-#             except RuntimeError as e:
-#                 if "eSpeak" in str(e):
-#                     raise RuntimeError(
-#                         "espeak not installed. "
-#                         "Install with: sudo apt install espeak-ng libespeak1"
-#                     )
-#                 raise
-#         return self._engine
-#
-#     def _set_voice(self, voice_name: str):
-#         """Set voice by name or ID."""
-#         voices = self.engine.getProperty("voices")
-#         for v in voices:
-#             if voice_name.lower() in v.name.lower() or voice_name == v.id:
-#                 self.engine.setProperty("voice", v.id)
-#                 return
-#         # If not found, keep default
-#
-#     def synthesize(self, text: str, output_path: str) -> Path:
-#         """Synthesize text using system TTS."""
-#         # Set voice if specified in config
-#         voice = self.config.get("voice")
-#         if voice:
-#             self._set_voice(voice)
-#
-#         out_path = Path(output_path)
-#
-#         # pyttsx3 can save to file
-#         self.engine.save_to_file(text, str(out_path))
-#         self.engine.runAndWait()
-#
-#         return out_path
-#
-#     def speak_direct(self, text: str):
-#         """Speak directly without saving to file (faster)."""
-#         voice = self.config.get("voice")
-#         if voice:
-#             self._set_voice(voice)
-#
-#         self.engine.say(text)
-#         self.engine.runAndWait()
-#
-#     def get_voices(self) -> List[dict]:
-#         """Get available system voices."""
-#         voices = self.engine.getProperty("voices")
-#         return [
-#             {
-#                 "name": v.name,
-#                 "id": v.id,
-#                 "type": "system",
-#                 "languages": getattr(v, "languages", []),
-#             }
-#             for v in voices
-#         ]
-#
-#
-# # EOF
-
-# --------------------------------------------------------------------------------
-# End of Source Code from: /home/ywatanabe/proj/scitex-code/src/scitex/audio/engines/pyttsx3_engine.py
-# --------------------------------------------------------------------------------

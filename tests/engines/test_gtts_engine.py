@@ -4,8 +4,6 @@
 
 """Tests for scitex.audio.engines._gtts_engine module."""
 
-import io
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -104,6 +102,7 @@ class TestGoogleTTS:
     @pytest.mark.network
     def test_synthesize_creates_file(self, tmp_path):
         """Test synthesize creates an audio file."""
+        pytest.importorskip("gtts")
         from scitex_audio.engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS(speed=1.0)  # No speed adjustment
