@@ -29,12 +29,12 @@ Scientific workflows increasingly use AI agents that run on remote servers or he
 
 SciTeX Audio provides a **unified TTS interface** with automatic backend fallback and smart local/remote routing. It works on local machines, remote servers (via relay), and WSL environments with automatic audio path detection.
 
-| Backend | Quality | Cost | Internet | Offline |
-|---------|---------|------|----------|---------|
-| **ElevenLabs** | High | Paid | Required | No |
-| **LuxTTS** | High | Free | First download | Yes |
-| **Google TTS** | Good | Free | Required | No |
-| **System TTS** | Basic | Free | No | Yes |
+| Backend | Quality | Cost | Internet | Offline | Default Speed |
+|---------|---------|------|----------|---------|---------------|
+| **ElevenLabs** | High | Paid | Required | No | 1.2x |
+| **LuxTTS** | High | Free | First download | Yes | 2.0x |
+| **Google TTS** | Good | Free | Required | No | 1.5x |
+| **System TTS** | Basic | Free | No | Yes | 150 wpm |
 
 <p align="center"><sub><b>Table 1.</b> Supported TTS backends. The fallback order (elevenlabs → luxtts → gtts → pyttsx3) ensures the best available quality is always used.</sub></p>
 
@@ -52,6 +52,7 @@ Install with specific backends:
 pip install scitex-audio[gtts]         # Google TTS
 pip install scitex-audio[pyttsx3]      # System TTS (+ apt install espeak-ng)
 pip install scitex-audio[elevenlabs]   # ElevenLabs
+pip install scitex-audio[luxtts]       # LuxTTS (voice cloning, offline)
 pip install scitex-audio[all]          # Everything
 ```
 
@@ -142,6 +143,101 @@ scitex-audio mcp start
 > **[Full MCP specification](https://scitex-audio.readthedocs.io/)**
 
 </details>
+
+## Remote Audio Relay
+
+When agents run on remote servers (NAS, cloud, HPC), they have no speakers. The **relay server** solves this: the local machine (with speakers) runs a lightweight HTTP server, and the remote agent sends speech requests over an SSH tunnel.
+
+### Architecture
+
+```
+Remote Server (NAS/Cloud)          Local Machine (has speakers)
+┌─────────────────────┐            ┌──────────────────────┐
+│ AI Agent            │            │ Relay Server         │
+│   speak("Hello")    │            │   scitex-audio relay │
+│     ↓               │            │     ↓                │
+│ POST /speak ────────┼── SSH ─────┼→ TTS engine          │
+│   (port 31293)      │  tunnel    │     ↓                │
+│                     │            │   🔊 Speakers        │
+└─────────────────────┘            └──────────────────────┘
+```
+
+### Setup
+
+**Step 1: Start relay on local machine (has speakers)**
+
+```bash
+scitex-audio relay --port 31293
+```
+
+**Step 2: SSH tunnel from local to remote**
+
+Add to your `~/.ssh/config`:
+
+```ssh-config
+Host my-server
+  HostName 192.168.0.69
+  User myuser
+  RemoteForward 31293 127.0.0.1:31293   # Audio relay
+```
+
+Then connect: `ssh my-server`. The tunnel maps remote port 31293 back to your local relay.
+
+**Step 3: Configure remote environment**
+
+On the remote server, set:
+
+```bash
+export SCITEX_AUDIO_MODE=remote
+export SCITEX_AUDIO_RELAY_PORT=31293
+# URL is auto-detected from the tunnel (localhost:31293)
+```
+
+Now `speak("Hello")` on the remote server plays audio on your local speakers.
+
+### Relay Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/speak` | POST | Play TTS (`{"text": "...", "backend": "gtts"}`) |
+| `/health` | GET | Health check (returns `{"status": "ok"}`) |
+| `/list_backends` | GET | List available backends |
+
+### Auto-Start Relay (Shell Profile)
+
+```bash
+# ~/.bashrc or ~/.bash_profile (local machine with speakers)
+_start_audio_relay() {
+    local port="${SCITEX_AUDIO_RELAY_PORT:-31293}"
+    # Skip if already running
+    curl -sf "http://localhost:$port/health" >/dev/null 2>&1 && return
+    # Start in background
+    scitex-audio relay --port "$port" --force &>/dev/null &
+    disown
+}
+_start_audio_relay
+```
+
+## Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SCITEX_AUDIO_MODE` | `auto` | Audio mode: `local`, `remote`, or `auto` |
+| `SCITEX_AUDIO_RELAY_URL` | *(auto)* | Full relay URL (e.g., `http://localhost:31293`) |
+| `SCITEX_AUDIO_RELAY_HOST` | *(none)* | Relay host (combined with port to build URL) |
+| `SCITEX_AUDIO_RELAY_PORT` | `31293` | Relay server port |
+| `SCITEX_AUDIO_HOST` | `0.0.0.0` | Relay server bind host |
+| `SCITEX_AUDIO_ELEVENLABS_API_KEY` | *(none)* | ElevenLabs API key |
+| `SCITEX_DIR` | `~/.scitex` | Base directory for audio cache files |
+| `SCITEX_CLOUD` | *(none)* | Set to `true` for browser relay mode (OSC escape) |
+
+<p align="center"><sub><b>Table 3.</b> Environment variables. Port 31293 encodes "sa-i-te-ku-su" (サイテクス) in Japanese phone keypad mapping.</sub></p>
+
+### Mode Resolution
+
+- **`auto`** (default): Checks local audio availability. If suspended/unavailable and relay URL detected, routes to relay. Otherwise uses local.
+- **`local`**: Always use local TTS engine and speakers.
+- **`remote`**: Always send speech to relay server. Fails if relay unreachable.
 
 ## Part of SciTeX
 

@@ -13,30 +13,76 @@ and cost for your scientific applications.
 Supported Backends
 ------------------
 
-- **ElevenLabs** - High-quality commercial TTS with natural voices (paid)
-- **LuxTTS** - Open-source offline TTS with voice cloning support
-- **Google TTS (gTTS)** - Free cloud-based TTS (requires internet)
-- **System TTS (pyttsx3)** - Offline TTS using system espeak or SAPI5
+.. list-table::
+   :header-rows: 1
+   :widths: 20 15 10 15 15 15
+
+   * - Backend
+     - Quality
+     - Cost
+     - Internet
+     - Offline
+     - Default Speed
+   * - **ElevenLabs**
+     - High
+     - Paid
+     - Required
+     - No
+     - 1.2x
+   * - **LuxTTS**
+     - High
+     - Free
+     - First download
+     - Yes
+     - 2.0x
+   * - **Google TTS**
+     - Good
+     - Free
+     - Required
+     - No
+     - 1.5x
+   * - **System TTS**
+     - Basic
+     - Free
+     - No
+     - Yes
+     - 150 wpm
+
+.. toctree::
+   :maxdepth: 2
+   :caption: User Guide
+
+   quickstart
+   backends
+   relay
+   env_vars
 
 .. toctree::
    :maxdepth: 2
    :caption: API Reference
 
    api/scitex_audio
+   api/engines
+   api/mcp
 
 Quick Example
 -------------
 
 .. code-block:: python
 
-   from scitex_audio import speak, get_tts
+   from scitex_audio import speak, available_backends
+
+   # Check what's available
+   print(available_backends())  # e.g., ['gtts', 'pyttsx3']
 
    # Simple usage
    speak("Hello, this is a test of text-to-speech!")
 
-   # Advanced usage with specific backend
-   tts = get_tts("luxtts")
-   tts.speak("Custom voice synthesis")
+   # Specific backend with speed control
+   speak("Fast speech", backend="gtts", speed=1.5)
+
+   # Save to file without playing
+   speak("Save this", output_path="output.mp3", play=False)
 
 Indices and tables
 ==================

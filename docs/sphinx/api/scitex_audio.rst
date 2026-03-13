@@ -1,5 +1,5 @@
 API Reference
-=============
+==============
 
 .. automodule:: scitex_audio
    :members:
