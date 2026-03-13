@@ -67,6 +67,9 @@ scitex-audio = "scitex_audio._cli:main"
 [project.entry-points."scitex_dev.docs"]
 scitex-audio = "scitex_audio"
 
+[project.entry-points."scitex_linter.plugins"]
+scitex-audio = "scitex_audio._linter_plugin:get_plugin"
+
 [project.urls]
 Homepage = "https://github.com/ywatanabe1989/scitex-audio"
 Repository = "https://github.com/ywatanabe1989/scitex-audio"
