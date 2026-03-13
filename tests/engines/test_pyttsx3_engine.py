@@ -25,56 +25,56 @@ class TestSystemTTS:
         """Test that name returns 'pyttsx3'."""
         mock_pyttsx3 = _make_pyttsx3_mock()
         with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
-            from scitex_audio.engines._pyttsx3_engine import SystemTTS
+            from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
             assert tts.name == "pyttsx3"
 
     def test_default_rate(self):
         """Test default rate is 150 WPM."""
-        from scitex_audio.engines._pyttsx3_engine import SystemTTS
+        from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
         tts = SystemTTS()
         assert tts.rate == 150
 
     def test_default_volume(self):
         """Test default volume is 1.0."""
-        from scitex_audio.engines._pyttsx3_engine import SystemTTS
+        from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
         tts = SystemTTS()
         assert tts.volume == 1.0
 
     def test_default_voice_is_none(self):
         """Test default voice is None."""
-        from scitex_audio.engines._pyttsx3_engine import SystemTTS
+        from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
         tts = SystemTTS()
         assert tts.voice is None
 
     def test_custom_rate_initialization(self):
         """Test initializing with custom rate."""
-        from scitex_audio.engines._pyttsx3_engine import SystemTTS
+        from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
         tts = SystemTTS(rate=200)
         assert tts.rate == 200
 
     def test_custom_volume_initialization(self):
         """Test initializing with custom volume."""
-        from scitex_audio.engines._pyttsx3_engine import SystemTTS
+        from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
         tts = SystemTTS(volume=0.5)
         assert tts.volume == 0.5
 
     def test_custom_voice_initialization(self):
         """Test initializing with custom voice."""
-        from scitex_audio.engines._pyttsx3_engine import SystemTTS
+        from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
         tts = SystemTTS(voice="en-us")
         assert tts.voice == "en-us"
 
     def test_engine_lazy_loading(self):
         """Test engine is lazily loaded."""
-        from scitex_audio.engines._pyttsx3_engine import SystemTTS
+        from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
         tts = SystemTTS()
         # Engine should not be initialized yet
@@ -86,7 +86,7 @@ class TestSystemTTS:
         mock_pyttsx3 = _make_pyttsx3_mock(mock_engine)
 
         with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
-            from scitex_audio.engines._pyttsx3_engine import SystemTTS
+            from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
             engine = tts.engine
@@ -105,7 +105,7 @@ class TestSystemTTS:
         mock_pyttsx3 = _make_pyttsx3_mock(mock_engine)
 
         with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
-            from scitex_audio.engines._pyttsx3_engine import SystemTTS
+            from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS(voice="English")
             _ = tts.engine
@@ -115,7 +115,7 @@ class TestSystemTTS:
 
     def test_engine_import_error_handling(self):
         """Test ImportError is raised when pyttsx3 not installed."""
-        from scitex_audio.engines._pyttsx3_engine import SystemTTS
+        from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
         tts = SystemTTS()
 
@@ -126,8 +126,8 @@ class TestSystemTTS:
 
     def test_inherits_from_base_tts(self):
         """Test that SystemTTS inherits from BaseTTS."""
-        from scitex_audio.engines._base import BaseTTS
-        from scitex_audio.engines._pyttsx3_engine import SystemTTS
+        from scitex_audio._engines._base import BaseTTS
+        from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
         assert issubclass(SystemTTS, BaseTTS)
 
@@ -137,7 +137,7 @@ class TestSystemTTS:
         mock_pyttsx3 = _make_pyttsx3_mock(mock_engine)
 
         with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
-            from scitex_audio.engines._pyttsx3_engine import SystemTTS
+            from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
             output_file = tmp_path / "test.mp3"
@@ -160,7 +160,7 @@ class TestSystemTTS:
         mock_pyttsx3 = _make_pyttsx3_mock(mock_engine)
 
         with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
-            from scitex_audio.engines._pyttsx3_engine import SystemTTS
+            from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
             tts.config["voice"] = "English"
@@ -177,7 +177,7 @@ class TestSystemTTS:
         mock_pyttsx3 = _make_pyttsx3_mock(mock_engine)
 
         with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
-            from scitex_audio.engines._pyttsx3_engine import SystemTTS
+            from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
             tts.speak_direct("Hello world")
@@ -195,7 +195,7 @@ class TestSystemTTS:
         mock_pyttsx3 = _make_pyttsx3_mock(mock_engine)
 
         with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
-            from scitex_audio.engines._pyttsx3_engine import SystemTTS
+            from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
             tts.config["voice"] = "English"
@@ -220,7 +220,7 @@ class TestSystemTTS:
         mock_pyttsx3 = _make_pyttsx3_mock(mock_engine)
 
         with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
-            from scitex_audio.engines._pyttsx3_engine import SystemTTS
+            from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
             voices = tts.get_voices()
@@ -246,7 +246,7 @@ class TestSystemTTS:
         mock_pyttsx3 = _make_pyttsx3_mock(mock_engine)
 
         with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
-            from scitex_audio.engines._pyttsx3_engine import SystemTTS
+            from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
             voices = tts.get_voices()
@@ -265,7 +265,7 @@ class TestSystemTTS:
         mock_pyttsx3 = _make_pyttsx3_mock(mock_engine)
 
         with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
-            from scitex_audio.engines._pyttsx3_engine import SystemTTS
+            from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
             tts._set_voice("English")
@@ -282,7 +282,7 @@ class TestSystemTTS:
         mock_pyttsx3 = _make_pyttsx3_mock(mock_engine)
 
         with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
-            from scitex_audio.engines._pyttsx3_engine import SystemTTS
+            from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
             tts._set_voice("en-voice-id")
@@ -299,7 +299,7 @@ class TestSystemTTS:
         mock_pyttsx3 = _make_pyttsx3_mock(mock_engine)
 
         with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
-            from scitex_audio.engines._pyttsx3_engine import SystemTTS
+            from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
             # Access engine to trigger lazy initialization (sets rate, volume)
@@ -321,7 +321,7 @@ class TestSystemTTSEdgeCases:
         mock_pyttsx3.init.side_effect = RuntimeError("eSpeak not installed")
 
         with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
-            from scitex_audio.engines._pyttsx3_engine import SystemTTS
+            from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
             with pytest.raises(RuntimeError) as exc_info:
@@ -335,7 +335,7 @@ class TestSystemTTSEdgeCases:
         mock_pyttsx3.init.side_effect = RuntimeError("Some other error")
 
         with patch.dict(sys.modules, {"pyttsx3": mock_pyttsx3}):
-            from scitex_audio.engines._pyttsx3_engine import SystemTTS
+            from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
             tts = SystemTTS()
             with pytest.raises(RuntimeError) as exc_info:
@@ -345,7 +345,7 @@ class TestSystemTTSEdgeCases:
 
     def test_volume_boundary_values(self):
         """Test volume at boundary values."""
-        from scitex_audio.engines._pyttsx3_engine import SystemTTS
+        from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
         # Minimum volume
         tts_min = SystemTTS(volume=0.0)
@@ -357,14 +357,14 @@ class TestSystemTTSEdgeCases:
 
     def test_rate_can_be_very_high(self):
         """Test rate can be set to high values."""
-        from scitex_audio.engines._pyttsx3_engine import SystemTTS
+        from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
         tts = SystemTTS(rate=500)
         assert tts.rate == 500
 
     def test_rate_can_be_very_low(self):
         """Test rate can be set to low values."""
-        from scitex_audio.engines._pyttsx3_engine import SystemTTS
+        from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
         tts = SystemTTS(rate=50)
         assert tts.rate == 50
@@ -378,7 +378,7 @@ class TestSystemTTSIntegration:
         """Test real pyttsx3 engine initialization."""
         pytest.importorskip("pyttsx3")
 
-        from scitex_audio.engines._pyttsx3_engine import SystemTTS
+        from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
         try:
             tts = SystemTTS()
@@ -396,7 +396,7 @@ class TestSystemTTSIntegration:
         """Test getting real system voices."""
         pytest.importorskip("pyttsx3")
 
-        from scitex_audio.engines._pyttsx3_engine import SystemTTS
+        from scitex_audio._engines._pyttsx3_engine import SystemTTS
 
         try:
             tts = SystemTTS()

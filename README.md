@@ -1,3 +1,9 @@
+<!-- ---
+!-- Timestamp: 2026-03-14 07:25:51
+!-- Author: ywatanabe
+!-- File: /home/ywatanabe/proj/scitex-audio/README.md
+!-- --- -->
+
 # SciTeX Audio (<code>scitex-audio</code>)
 
 <p align="center">
@@ -23,11 +29,11 @@
 
 ## Problem
 
-Scientific workflows increasingly use AI agents that run on remote servers or headless environments. These agents need to communicate results audibly — for experiment completion notifications, error alerts, or accessibility — but have no direct access to audio hardware.
+Scientific workflows increasingly rely on AI agents that often run in parallel on remote servers or headless environments. Researchers may prefer auditory feedback over text — for experiment completion notifications, error alerts, or accessibility — but have no direct access to audio hardware.
 
 ## Solution
 
-SciTeX Audio provides a **unified TTS interface** with automatic backend fallback and smart local/remote routing. It works on local machines, remote servers (via relay), and WSL environments with automatic audio path detection.
+SciTeX Audio provides a unified TTS interface with automatic backend fallback and **smart local/remote routing to speakers on your desktop**. It works on local machines, remote servers (via relay), and WSL environments with automatic audio path detection.
 
 | Backend | Quality | Cost | Internet | Offline | Default Speed |
 |---------|---------|------|----------|---------|---------------|
@@ -125,7 +131,7 @@ scitex-audio mcp list-tools               # List MCP tools
 
 <br>
 
-AI agents can speak through the MCP protocol for notifications and accessibility.
+AI agents can speak through the MCP protocol for notifications and accessibility. The agent generates text, the MCP server synthesizes speech on the host machine, and audio plays through the user's local speakers — even when the agent runs on a remote server (via the [relay](#remote-audio-relay) on port `31293`).
 
 | Tool | Description |
 |------|-------------|
@@ -136,15 +142,70 @@ AI agents can speak through the MCP protocol for notifications and accessibility
 
 <sub><b>Table 2.</b> Four MCP tools available for AI-assisted audio. All tools accept JSON parameters and return JSON results.</sub>
 
+#### Claude Code Setup
+
+Add `.mcp.json` to your project root. Use `SCITEX_AUDIO_ENV_SRC` to load all configuration from a `.src` file — this keeps `.mcp.json` static across environments:
+
+```json
+{
+  "mcpServers": {
+    "scitex-audio": {
+      "command": "scitex-audio",
+      "args": ["mcp", "start"],
+      "env": {
+        "SCITEX_AUDIO_ENV_SRC": "${SCITEX_AUDIO_ENV_SRC}"
+      }
+    }
+  }
+}
+```
+
+Then switch environments via your shell profile:
+
 ```bash
-scitex-audio mcp start
+# Local machine (has speakers)
+export SCITEX_AUDIO_ENV_SRC=~/.scitex/audio/local.src
+
+# Remote server (no speakers, uses relay)
+export SCITEX_AUDIO_ENV_SRC=~/.scitex/audio/remote.src
+```
+
+Generate a template `.src` file:
+
+```bash
+scitex-audio env-template -o ~/.scitex/audio/local.src
+```
+
+Example `local.src`:
+
+```bash
+export SCITEX_AUDIO_MODE=local
+export SCITEX_AUDIO_RELAY_PORT=31293
+export SCITEX_AUDIO_ELEVENLABS_API_KEY="your-key-here"
+```
+
+Example `remote.src`:
+
+```bash
+export SCITEX_AUDIO_MODE=remote
+export SCITEX_AUDIO_RELAY_PORT=31293
+export SCITEX_AUDIO_ELEVENLABS_API_KEY="your-key-here"
+```
+
+Or install globally:
+
+```bash
+scitex-audio mcp install
 ```
 
 > **[Full MCP specification](https://scitex-audio.readthedocs.io/)**
 
 </details>
 
-## Remote Audio Relay
+<details>
+<summary><strong>Remote Audio Relay</strong></summary>
+
+<br>
 
 When agents run on remote servers (NAS, cloud, HPC), they have no speakers. The **relay server** solves this: the local machine (with speakers) runs a lightweight HTTP server, and the remote agent sends speech requests over an SSH tunnel.
 
@@ -205,20 +266,47 @@ Now `speak("Hello")` on the remote server plays audio on your local speakers.
 
 ### Auto-Start Relay (Shell Profile)
 
+Add to your shell profile (e.g., `~/.bashrc`) on the **local machine** (the one with speakers):
+
 ```bash
-# ~/.bashrc or ~/.bash_profile (local machine with speakers)
+export SCITEX_AUDIO_RELAY_PORT=31293
+export SCITEX_AUDIO_MODE=local
+
+_audio_health_ok() {
+    local port="${SCITEX_AUDIO_RELAY_PORT:-31293}"
+    curl -sf --connect-timeout 2 "http://localhost:$port/health" >/dev/null 2>&1
+}
+
 _start_audio_relay() {
     local port="${SCITEX_AUDIO_RELAY_PORT:-31293}"
-    # Skip if already running
-    curl -sf "http://localhost:$port/health" >/dev/null 2>&1 && return
-    # Start in background
+
+    # Already healthy -> skip
+    _audio_health_ok && return
+
+    # Start relay in background
     scitex-audio relay --port "$port" --force &>/dev/null &
     disown
 }
+
 _start_audio_relay
 ```
 
-## Environment Variables
+On the **remote server** (NAS, cloud, HPC), add to the shell profile:
+
+```bash
+export SCITEX_AUDIO_RELAY_PORT=31293
+export SCITEX_AUDIO_MODE=remote
+# Relay URL is auto-detected from the SSH RemoteForward tunnel
+```
+
+With this setup, every SSH session automatically has audio routed back to your speakers. AI agents (Claude Code, etc.) running on the remote server call `speak()` and the audio plays locally.
+
+</details>
+
+<details>
+<summary><strong>Environment Variables</strong></summary>
+
+<br>
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -239,23 +327,13 @@ _start_audio_relay
 - **`local`**: Always use local TTS engine and speakers.
 - **`remote`**: Always send speech to relay server. Fails if relay unreachable.
 
+</details>
+
 ## Part of SciTeX
 
-SciTeX Audio is part of [**SciTeX**](https://scitex.ai). When used inside the orchestrator package `scitex`, audio integrates with the session system for automatic experiment notifications:
+SciTeX Audio is part of [**SciTeX**](https://scitex.ai).
 
-```python
-import scitex
-
-@scitex.session
-def main(CONFIG=scitex.INJECTED):
-    data = scitex.io.load("input.csv")
-    result = process(data)
-    scitex.io.save(result, "output.csv")
-    scitex.audio.speak("Experiment complete")  # notify via TTS
-    return 0
-```
-
-The SciTeX ecosystem follows the Four Freedoms for researchers:
+The SciTeX system follows the Four Freedoms for Research below, inspired by [the Free Software Definition](https://www.gnu.org/philosophy/free-sw.en.html):
 
 >Four Freedoms for Research
 >
@@ -264,7 +342,11 @@ The SciTeX ecosystem follows the Four Freedoms for researchers:
 >2. The freedom to **redistribute** your workflows, not just your papers.
 >3. The freedom to **modify** any module and share improvements with the community.
 >
->AGPL-3.0 — because research infrastructure deserves the same freedoms as the software it runs on.
+>AGPL-3.0 — because we believe research infrastructure deserves the same freedoms as the software it runs on.
+
+## Acknowledgements
+
+- [LuxTTS](https://github.com/ysharma3501/LuxTTS) — open-source, offline TTS engine with voice cloning support
 
 ---
 

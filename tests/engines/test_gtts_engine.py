@@ -14,56 +14,56 @@ class TestGoogleTTS:
 
     def test_name_property(self):
         """Test that name returns 'gtts'."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS()
         assert tts.name == "gtts"
 
     def test_requires_internet_property(self):
         """Test that requires_internet returns True."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS()
         assert tts.requires_internet is True
 
     def test_default_language_is_english(self):
         """Test default language is English."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS()
         assert tts.lang == "en"
 
     def test_default_speed_is_1_5(self):
         """Test default speed is 1.5."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS()
         assert tts.speed == 1.5
 
     def test_slow_mode_disabled_by_default(self):
         """Test slow mode is disabled by default."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS()
         assert tts.slow is False
 
     def test_custom_language_initialization(self):
         """Test initializing with custom language."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS(lang="fr")
         assert tts.lang == "fr"
 
     def test_custom_speed_initialization(self):
         """Test initializing with custom speed."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS(speed=2.0)
         assert tts.speed == 2.0
 
     def test_languages_dictionary_contains_common_languages(self):
         """Test LANGUAGES dict contains expected languages."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         assert "en" in GoogleTTS.LANGUAGES
         assert "fr" in GoogleTTS.LANGUAGES
@@ -73,7 +73,7 @@ class TestGoogleTTS:
 
     def test_get_voices_returns_list(self):
         """Test get_voices returns a list of voice dictionaries."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS()
         voices = tts.get_voices()
@@ -90,7 +90,7 @@ class TestGoogleTTS:
 
     def test_get_voices_includes_all_languages(self):
         """Test get_voices includes all languages from LANGUAGES."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS()
         voices = tts.get_voices()
@@ -103,7 +103,7 @@ class TestGoogleTTS:
     def test_synthesize_creates_file(self, tmp_path):
         """Test synthesize creates an audio file."""
         pytest.importorskip("gtts")
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS(speed=1.0)  # No speed adjustment
         output_file = tmp_path / "test.mp3"
@@ -116,13 +116,13 @@ class TestGoogleTTS:
 
     def test_synthesize_with_mocked_gtts(self, tmp_path):
         """Test synthesize with mocked gTTS to avoid network calls."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         mock_gtts = MagicMock()
         mock_gtts_instance = MagicMock()
         mock_gtts.return_value = mock_gtts_instance
 
-        with patch("scitex_audio.engines._gtts_engine.gTTS", mock_gtts, create=True):
+        with patch("scitex_audio._engines._gtts_engine.gTTS", mock_gtts, create=True):
             with patch.object(GoogleTTS, "synthesize") as mock_synth:
                 mock_synth.return_value = tmp_path / "test.mp3"
 
@@ -136,7 +136,7 @@ class TestGoogleTTS:
 
     def test_synthesize_uses_voice_from_config(self, tmp_path):
         """Test synthesize uses voice from config for language."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS(speed=1.0)
         tts.config["voice"] = "fr"
@@ -153,7 +153,7 @@ class TestGoogleTTS:
 
     def test_synthesize_converts_language_name_to_code(self):
         """Test that language names are converted to codes."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS()
         tts.config["voice"] = "French"
@@ -170,7 +170,7 @@ class TestGoogleTTS:
 
     def test_speed_control_requires_pydub(self):
         """Test that speed control requires pydub."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS(speed=1.5)  # Non-1.0 speed requires pydub
 
@@ -181,7 +181,7 @@ class TestGoogleTTS:
 
     def test_synthesize_with_speed_1_uses_direct_save(self, tmp_path):
         """Test that speed=1.0 uses direct gTTS save."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS(speed=1.0)
 
@@ -190,7 +190,7 @@ class TestGoogleTTS:
         mock_gtts_class.return_value = mock_gtts_instance
 
         with patch(
-            "scitex_audio.engines._gtts_engine.gTTS", mock_gtts_class, create=True
+            "scitex_audio._engines._gtts_engine.gTTS", mock_gtts_class, create=True
         ):
             # Create proper import mock
             import sys
@@ -208,21 +208,21 @@ class TestGoogleTTS:
 
     def test_inherits_from_base_tts(self):
         """Test that GoogleTTS inherits from BaseTTS."""
-        from scitex_audio.engines._base import BaseTTS
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._base import BaseTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         assert issubclass(GoogleTTS, BaseTTS)
 
     def test_slow_mode_initialization(self):
         """Test initializing with slow mode enabled."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS(slow=True)
         assert tts.slow is True
 
     def test_synthesize_with_speed_above_1(self):
         """Test synthesize with speed > 1.0 uses speedup."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS(speed=1.5)
 
@@ -232,7 +232,7 @@ class TestGoogleTTS:
 
     def test_synthesize_with_speed_below_1(self):
         """Test synthesize with speed < 1.0 uses frame rate adjustment."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS(speed=0.7)
         assert tts.speed == 0.7
@@ -243,7 +243,7 @@ class TestGoogleTTSSynthesizeWithSpeed:
 
     def test_synthesize_with_speed_requires_pydub(self):
         """Test that _synthesize_with_speed raises ImportError without pydub."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS(speed=1.5)
 
@@ -256,7 +256,7 @@ class TestGoogleTTSSynthesizeWithSpeed:
 
     def test_synthesize_with_speed_speedup_path(self):
         """Test _synthesize_with_speed uses speedup for speed > 1.0."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS()
 
@@ -284,7 +284,7 @@ class TestGoogleTTSEdgeCases:
 
     def test_empty_text_handling(self):
         """Test handling of empty text."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS()
         # Empty text should be handled by gTTS, not our code
@@ -293,7 +293,7 @@ class TestGoogleTTSEdgeCases:
 
     def test_very_long_text(self):
         """Test handling of very long text."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS()
         long_text = "Hello world. " * 1000
@@ -303,7 +303,7 @@ class TestGoogleTTSEdgeCases:
 
     def test_special_characters_in_text(self):
         """Test handling of special characters."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS()
         # Just verify initialization works with unicode
@@ -311,7 +311,7 @@ class TestGoogleTTSEdgeCases:
 
     def test_unsupported_language_falls_back(self):
         """Test behavior with unsupported language."""
-        from scitex_audio.engines._gtts_engine import GoogleTTS
+        from scitex_audio._engines._gtts_engine import GoogleTTS
 
         tts = GoogleTTS(lang="invalid_lang")
         # Should store the value, validation happens at synthesis time

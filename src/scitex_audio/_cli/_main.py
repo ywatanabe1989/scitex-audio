@@ -354,6 +354,42 @@ def relay(host, port, force):
         sys.exit(1)
 
 
+@audio.command("env-template")
+@click.option(
+    "--output",
+    "-o",
+    type=click.Path(),
+    help="Write template to file instead of stdout",
+)
+@click.option(
+    "--no-sensitive",
+    is_flag=True,
+    help="Exclude sensitive variables (API keys)",
+)
+def env_template(output, no_sensitive):
+    """
+    Generate a template .src file for SCITEX_AUDIO_ENV_SRC
+
+    \b
+    Examples:
+      scitex-audio env-template                    # Print to stdout
+      scitex-audio env-template -o audio.src       # Write to file
+      scitex-audio env-template --no-sensitive      # Exclude API keys
+    """
+    from scitex_audio._env_registry import generate_template
+
+    content = generate_template(include_sensitive=not no_sensitive)
+
+    if output:
+        from pathlib import Path
+
+        Path(output).write_text(content + "\n")
+        click.secho(f"Template written to {output}", fg="green")
+        click.echo(f"  Usage: export SCITEX_AUDIO_ENV_SRC={output}")
+    else:
+        click.echo(content)
+
+
 @audio.command("list-python-apis")
 @click.option("-v", "--verbose", count=True, help="Verbosity: -v +doc, -vv full doc")
 @click.option("-d", "--max-depth", type=int, default=5, help="Max recursion depth")

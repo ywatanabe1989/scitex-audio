@@ -26,6 +26,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
+# Load environment variables from SCITEX_AUDIO_ENV_SRC early
+from ._env_loader import load_scitex_audio_env
+
+load_scitex_audio_env()
+
 # Graceful FastMCP dependency handling
 try:
     from fastmcp import FastMCP

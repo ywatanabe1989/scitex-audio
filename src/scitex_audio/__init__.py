@@ -19,19 +19,16 @@ Usage:
     tts.speak("Hello!")
 """
 
-from __future__ import annotations
+from __future__ import annotations as _annotations
 
 import subprocess as _subprocess
 
 __version__ = "0.2.1"
 
-# Import from engines subpackage
-from . import engines as _engines_module
-from .engines import ElevenLabsTTS, GoogleTTS, LuxTTS, SystemTTS
-from .engines._base import BaseTTS as _BaseTTS
-from .engines._base import TTSBackend as _TTSBackend
-
-del _engines_module
+# Import from engines subpackage (hide module from dir())
+from ._engines import ElevenLabsTTS, GoogleTTS, LuxTTS, SystemTTS
+from ._engines._base import BaseTTS as _BaseTTS
+from ._engines._base import TTSBackend as _TTSBackend
 
 
 def stop_speech() -> None:
@@ -90,22 +87,27 @@ def check_wsl_audio() -> dict:
 
 
 from ._audio_check import check_local_audio_available
+from ._env_registry import generate_template as generate_env_template
 from ._tts import TTS
 
 __all__ = [
+    # Core
     "speak",
     "generate_bytes",
     "stop_speech",
-    "check_wsl_audio",
-    "check_local_audio_available",
+    "get_tts",
+    "available_backends",
+    # Engine classes
     "TTS",
     "GoogleTTS",
     "ElevenLabsTTS",
     "SystemTTS",
     "LuxTTS",
-    "get_tts",
-    "available_backends",
-    "FALLBACK_ORDER",
+    # Diagnostics
+    "check_wsl_audio",
+    "check_local_audio_available",
+    # Configuration
+    "generate_env_template",
 ]
 
 FALLBACK_ORDER = ["elevenlabs", "luxtts", "gtts", "pyttsx3"]
