@@ -46,6 +46,7 @@ autodoc_mock_imports = [
 autosummary_generate = True
 
 html_theme = "sphinx_rtd_theme"
+html_logo = "../scitex-logo-banner.png"
 html_static_path = ["_static"]
 
 html_theme_options = {
