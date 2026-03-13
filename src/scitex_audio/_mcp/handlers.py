@@ -322,6 +322,7 @@ async def speak_handler(
     agent_id: str | None = None,
     wait: bool = True,
     signature: bool = False,
+    num_threads: int | None = None,
 ) -> dict:
     """Convert text to speech with fallback.
 
@@ -329,6 +330,7 @@ async def speak_handler(
         save: If True and output_path is None, auto-generate a timestamped path.
         output_path: Explicit path to save the audio file (overrides save flag).
         signature: If True, prepend hostname/project/branch to text.
+        num_threads: CPU thread count for LuxTTS backend (None=default).
     """
     import os
 
@@ -376,6 +378,7 @@ async def speak_handler(
                 play=play,
                 output_path=output_path,
                 fallback=fallback,
+                num_threads=num_threads,
             )
 
         speak_result = await loop.run_in_executor(None, do_speak)
