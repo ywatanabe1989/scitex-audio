@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import subprocess as _subprocess
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 # Import from engines subpackage
 from . import engines as _engines_module
@@ -66,7 +66,10 @@ def check_wsl_audio() -> dict:
                 env = os.environ.copy()
                 env["PULSE_SERVER"] = "unix:/mnt/wslg/PulseServer"
                 proc = _subprocess.run(
-                    ["pactl", "info"], capture_output=True, timeout=5, env=env,
+                    ["pactl", "info"],
+                    capture_output=True,
+                    timeout=5,
+                    env=env,
                 )
                 if proc.returncode == 0:
                     result["pulse_connected"] = True
@@ -115,6 +118,7 @@ def available_backends() -> list[str]:
     if SystemTTS:
         try:
             import pyttsx3
+
             engine = pyttsx3.init()
             engine.stop()
             backends.append("pyttsx3")
@@ -129,6 +133,7 @@ def available_backends() -> list[str]:
 
     if ElevenLabsTTS:
         import os
+
         api_key = os.environ.get("SCITEX_AUDIO_ELEVENLABS_API_KEY") or os.environ.get(
             "ELEVENLABS_API_KEY"
         )
