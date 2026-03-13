@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import subprocess as _subprocess
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 # Import from engines subpackage
 from . import engines as _engines_module
