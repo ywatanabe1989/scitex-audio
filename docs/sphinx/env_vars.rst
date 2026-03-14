@@ -85,6 +85,56 @@ phone keypad mapping. Other SciTeX ports follow the same scheme:
    * - 31294
      - scitex-cloud staging
 
+ENV_SRC Pattern
+---------------
+
+Instead of setting individual environment variables, you can use a ``.src`` file:
+
+.. code-block:: bash
+
+   # Generate a template
+   scitex-audio env-template -o ~/.scitex/audio/local.src
+
+   # Point to it
+   export SCITEX_AUDIO_ENV_SRC=~/.scitex/audio/local.src
+
+The loader (``_env_loader.py``) parses ``export VAR=value`` lines, expands
+``$VAR`` / ``${VAR}`` references, and strips quotes. This is especially useful
+for MCP servers where you can set a single env var in ``.mcp.json``:
+
+.. code-block:: json
+
+   {
+     "mcpServers": {
+       "scitex-audio": {
+         "command": "scitex-audio",
+         "args": ["mcp", "start"],
+         "env": {
+           "SCITEX_AUDIO_ENV_SRC": "${SCITEX_AUDIO_ENV_SRC}"
+         }
+       }
+     }
+   }
+
+Switch environments via your shell profile:
+
+.. code-block:: bash
+
+   # Local machine (has speakers)
+   export SCITEX_AUDIO_ENV_SRC=~/.scitex/audio/local.src
+
+   # Remote server (no speakers, uses relay)
+   export SCITEX_AUDIO_ENV_SRC=~/.scitex/audio/remote.src
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 70
+
+   * - Variable
+     - Description
+   * - ``SCITEX_AUDIO_ENV_SRC``
+     - Path to a ``.src`` file or directory of ``.src`` files
+
 Example Shell Configuration
 ----------------------------
 

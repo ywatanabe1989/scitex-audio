@@ -43,6 +43,7 @@ dependencies = [
 [project.optional-dependencies]
 pyttsx3 = ["pyttsx3"]
 gtts = ["gTTS"]
+luxtts = ["Zipvoice @ git+https://github.com/ysharma3501/LuxTTS.git", "torch", "torchaudio", "transformers", "huggingface-hub"]
 elevenlabs = ["elevenlabs"]
 mcp = ["fastmcp>=2.0"]
 dev = [
@@ -58,7 +59,7 @@ docs = [
     "sphinx-autodoc-typehints>=1.25",
 ]
 all = [
-    "scitex-audio[pyttsx3,gtts,elevenlabs,mcp,dev,docs]",
+    "scitex-audio[pyttsx3,gtts,luxtts,elevenlabs,mcp,dev,docs]",
 ]
 
 [project.scripts]
