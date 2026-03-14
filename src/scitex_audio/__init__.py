@@ -131,7 +131,12 @@ def available_backends() -> list[str]:
         backends.append("gtts")
 
     if LuxTTS:
-        backends.append("luxtts")
+        try:
+            import zipvoice  # noqa: F401
+
+            backends.append("luxtts")
+        except ImportError:
+            pass
 
     if ElevenLabsTTS:
         import os

@@ -43,7 +43,7 @@ dependencies = [
 [project.optional-dependencies]
 pyttsx3 = ["pyttsx3"]
 gtts = ["gTTS"]
-luxtts = ["torch", "torchaudio", "transformers", "huggingface-hub"]
+luxtts = ["Zipvoice @ git+https://github.com/ysharma3501/LuxTTS.git", "torch", "torchaudio", "transformers", "huggingface-hub"]
 elevenlabs = ["elevenlabs"]
 mcp = ["fastmcp>=2.0"]
 dev = [
