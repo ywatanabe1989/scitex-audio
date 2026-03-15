@@ -76,6 +76,9 @@ Homepage = "https://github.com/ywatanabe1989/scitex-audio"
 Repository = "https://github.com/ywatanabe1989/scitex-audio"
 Documentation = "https://scitex-audio.readthedocs.io"
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/scitex_audio"]
 
