@@ -298,6 +298,13 @@ from ._mcp_cli import mcp
 
 audio.add_command(mcp)
 
+try:
+    from scitex_dev.cli import docs_click_group
+
+    audio.add_command(docs_click_group(package="scitex-audio"))
+except ImportError:
+    pass
+
 
 @audio.command()
 @click.option(
