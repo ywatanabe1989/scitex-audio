@@ -95,3 +95,46 @@ Available MCP tools:
 - ``list_backends`` — List available TTS backends and status
 - ``check_audio_status`` — Check audio connectivity (WSL/PulseAudio)
 - ``announce_context`` — Announce current directory and git branch
+
+Claude Code Setup
+~~~~~~~~~~~~~~~~~
+
+Add ``.mcp.json`` to your project root. Use ``SCITEX_AUDIO_ENV_SRC`` to load
+all configuration from a ``.src`` file — this keeps ``.mcp.json`` static
+across environments:
+
+.. code-block:: json
+
+   {
+     "mcpServers": {
+       "scitex-audio": {
+         "command": "scitex-audio",
+         "args": ["mcp", "start"],
+         "env": {
+           "SCITEX_AUDIO_ENV_SRC": "${SCITEX_AUDIO_ENV_SRC}"
+         }
+       }
+     }
+   }
+
+Switch environments via your shell profile:
+
+.. code-block:: bash
+
+   # Local machine (has speakers)
+   export SCITEX_AUDIO_ENV_SRC=~/.scitex/audio/local.src
+
+   # Remote server (no speakers, uses relay)
+   export SCITEX_AUDIO_ENV_SRC=~/.scitex/audio/remote.src
+
+Generate a template ``.src`` file:
+
+.. code-block:: bash
+
+   scitex-audio env-template -o ~/.scitex/audio/local.src
+
+Or install globally:
+
+.. code-block:: bash
+
+   scitex-audio mcp install

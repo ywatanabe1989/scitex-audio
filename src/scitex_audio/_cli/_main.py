@@ -298,6 +298,13 @@ from ._mcp_cli import mcp
 
 audio.add_command(mcp)
 
+try:
+    from scitex_dev.cli import docs_click_group
+
+    audio.add_command(docs_click_group(package="scitex-audio"))
+except ImportError:
+    pass
+
 
 @audio.command()
 @click.option(
@@ -352,6 +359,42 @@ def relay(host, port, force):
     except Exception as e:
         click.secho(f"Error: {e}", fg="red", err=True)
         sys.exit(1)
+
+
+@audio.command("env-template")
+@click.option(
+    "--output",
+    "-o",
+    type=click.Path(),
+    help="Write template to file instead of stdout",
+)
+@click.option(
+    "--no-sensitive",
+    is_flag=True,
+    help="Exclude sensitive variables (API keys)",
+)
+def env_template(output, no_sensitive):
+    """
+    Generate a template .src file for SCITEX_AUDIO_ENV_SRC
+
+    \b
+    Examples:
+      scitex-audio env-template                    # Print to stdout
+      scitex-audio env-template -o audio.src       # Write to file
+      scitex-audio env-template --no-sensitive      # Exclude API keys
+    """
+    from scitex_audio._env_registry import generate_template
+
+    content = generate_template(include_sensitive=not no_sensitive)
+
+    if output:
+        from pathlib import Path
+
+        Path(output).write_text(content + "\n")
+        click.secho(f"Template written to {output}", fg="green")
+        click.echo(f"  Usage: export SCITEX_AUDIO_ENV_SRC={output}")
+    else:
+        click.echo(content)
 
 
 @audio.command("list-python-apis")
