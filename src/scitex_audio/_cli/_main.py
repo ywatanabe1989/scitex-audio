@@ -305,6 +305,13 @@ try:
 except ImportError:
     pass
 
+try:
+    from scitex_dev.cli import skills_click_group
+
+    audio.add_command(skills_click_group(package="scitex-audio"))
+except ImportError:
+    pass
+
 
 @audio.command()
 @click.option(
